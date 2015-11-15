@@ -125,6 +125,22 @@
   width: 382px;
 }
 
+/* Formato para el cuadro de la distancia de una ruta */
+#clima{
+  display: block;
+  position: absolute;
+  top: 427px;
+  left: 1151px;
+
+  border: 1px;
+  border-style: solid;
+  background-color: #FFFF99;
+  height: 1680px;
+  width: 382px;
+
+ 
+}
+
 #crearJson{
   display: block;
   position: absolute;
@@ -136,7 +152,7 @@
   border-style: solid;
   background-color: #006699;
   height: 75px;
-  width: 382px;
+  width: 332px;
 }
 #crearJson h2{
   color: #B4886B;

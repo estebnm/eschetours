@@ -21,7 +21,6 @@ function Validar(){
   else if(ValidarFecha(fechaInicio.value) && ValidarFecha(fechaFinal.value)) {
     alert("Las fechas han sido validadas");
     CrearPunto();
-
   }
 }
 

@@ -185,9 +185,29 @@ function geocodeAddress(geocoder, resultsMap) {
     <label>Informacion links e imagenes relacionadas al sitio de interes</label>
   </div>
 
-<!-- Cuadro para mostrar la api de links e imagenes-->
+<!-- Cuadro para mostrar la api distancia y tiempo-->
 <div id="distanciaRuta">
 <label>Informacion distancia entre los lugares seleccionados</label><br><br>
+</div>
+
+<!-- Cuadro para mostrar la api de clima-->
+<div id="clima">
+  <style>
+.WFOT1 {border:2px solid #E1E1E1; background-color:#F1F1F1; padding:10px}
+.WFH1 {font:bold 14px Arial, sans-serif; margin-bottom:6px}
+TABLE.WFOT TD {vertical-align:top}
+.FCOVTMP {font:14px Arial, sans-serif; line-height:16px; padding-bottom:4px}
+.FCOVEXP {font:12px Arial, sans-serif; line-height:14px; text-align:center}
+.WFI {background-color:#3399FF;padding:0}
+.WTL {color:blue;font-weight:bold}
+.WTH {color:red;float:right;font-weight:bold}
+.WFLK {font-size:11px;color:#900;text-decoration:none}
+.WFDAY {font-size:12px;text-align:center;font-weight:bold}
+
+</style>
+
+<label>Informacion del clima</label><br><br>
+<script id="widget" type="text/javascript" src="http://tools.tititudorancea.com/weather_forecast.js?place=paris&s=1&amp;days=7&amp;utf8=no&amp;sidebyside=yes&amp;lang=en"></script>
 </div>
 
 <div id="crearJson">
@@ -210,3 +230,4 @@ function geocodeAddress(geocoder, resultsMap) {
 
 </body>
 </html>
+
