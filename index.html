@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Pagina Principal</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="stylesheets/main.css">
+
+</head>
+
+<body>
+   <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&libraries=places"></script> <!--Link que dirige a la API de google maps para calcular una ruta -->
+    <script type="text/javascript">
+        //se crean las variables
+        markers=[];
+        var jsonLista = { "lista": [
+
+        ]};
+        var origen, destino; 
+        var directionsDisplay;
+        var directionsService = new google.maps.DirectionsService(); //se crea un nuevo servicio de direcciones de la API de google maps
+        google.maps.event.addDomListener(window, 'load', function () {
+            new google.maps.places.SearchBox(document.getElementById('txtOrigen'));
+            new google.maps.places.SearchBox(document.getElementById('txtDestino'));
+            directionsDisplay = new google.maps.DirectionsRenderer({ 'draggable': false });
+        }); //codigo qe crea los searchBox de los cuales se va a calcular la ruta (origen, destino)
+
+        function CrearPunto(){
+            var costaRica = new google.maps.LatLng(9.6301892, -84.2541844); //posicion inicial del mapa
+            var mapOptions = {
+                zoom: 7,
+                center: costaRica
+            }; // caracteristicas del mapa
+            var geocoder = new google.maps.Geocoder();
+
+            map = new google.maps.Map(document.getElementById('map'), mapOptions); //asigna el mapa de la API
+            geocodeAddress(geocoder, map);
+            directionsDisplay.setMap(map); //muestra en el mapa las ubicaciones que ingreso el usuario
+            //directionsDisplay.setPanel(document.getElementById('dvPanel')); //muestra las direcciones que hay qe seguir para llegar de un destino a otro
+
+        }
+
+        function ObtenerRuta() {
+
+            var costaRica = new google.maps.LatLng(9.6301892, -84.2541844); //posicion inicial del mapa
+            var mapOptions = {
+                zoom: 11,
+                center: costaRica
+            }; // caracteristicas del mapa
+            var geocoder = new google.maps.Geocoder();
+
+            map = new google.maps.Map(document.getElementById('map'), mapOptions); //asigna el mapa de la API
+            directionsDisplay.setMap(map); //muestra en el mapa las ubicaciones que ingreso el usuario
+            //directionsDisplay.setPanel(document.getElementById('dvPanel')); //muestra las direcciones que hay qe seguir para llegar de un destino a otro
+
+            //*********DIRECCIONES Y RUTA**********************//
+            //asigna las variables de origen y destino, de acuerdo con lo que ingreso el usuario
+            origen = document.getElementById("txtOrigen").value;
+            sitio = document.getElementById("sitio").value;
+            destino = document.getElementById("txtDestino").value;
+
+            var request = {
+                origin: sitio+","+origen,
+                destination: destino,
+                travelMode: google.maps.TravelMode.WALKING
+            }; //asigna a la variable request los datos de como se va a calcular la ruta
+            directionsService.route(request, function (response, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    directionsDisplay.setDirections(response);
+                }
+            });// si los datos son correctos, se despliega la ruta en el mapa
+
+            //*********DISTANCIA Y DURACION**********************//
+            //se crea la variable con el servicio de la API de google maps para calcular distancias y duraciones
+            var servicio = new google.maps.DistanceMatrixService();
+            //calcula la distancia de una ruta
+            servicio.getDistanceMatrix({
+                origins: [sitio+" "+origen],
+                destinations: [destino],
+                travelMode: google.maps.TravelMode.WALKING, //modo de viaje caminando (puede ser tambien DRIVING)
+                unitSystem: google.maps.UnitSystem.METRIC, //unidad de medida en KM
+                avoidHighways: false,
+                avoidTolls: false
+            }, function (response, status) {
+                if (status == google.maps.DistanceMatrixStatus.OK && response.rows[0].elements[0].status != "ZERO_RESULTS") { //verifica que la direccion sea correcta y exista
+                    var distance = response.rows[0].elements[0].distance.text; //variable que almacena la distancia de la ruta
+                    var duration = response.rows[0].elements[0].duration.text; //varibale que almacena la duracion de la ruta
+                    var dvDistance = document.getElementById("distanciaRuta");
+                    dvDistance.innerHTML = "";
+                    dvDistance.innerHTML += "Distancia: " + distance + "<br />";
+                    dvDistance.innerHTML += "Duracion:" + duration;
+
+                    jsonLista.lista.push({origen: request.origin,destino: destino, distancia: distance, duracion: duration});
+
+
+
+                } else { //envia un mensaje si los destinos especificados no existen
+                    alert("No se pudo encontrar una ruta disponible.");
+                }
+            });
+        }
+
+
+function exportarJson(){
+  url = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonLista));
+  window.open(url, '_blank');
+
+
+}
+
+
+//funcion que de acuerdo a la busqueda situa el mapa y pone el marcador sobre la ciudad y sitio
+function geocodeAddress(geocoder, resultsMap) {
+  var address = document.getElementById('txtOrigen').value;
+  var sitio = document.getElementById('sitio').value;
+
+  if(address==""){
+    alert("Debe ingresar algun dato en el camio de Ciudad");
+  }
+  else if(sitio==""){
+    alert("Debe ingresar algun dato en el campo de sitio");
+
+  }
+  else{
+  geocoder.geocode({'address':sitio+','+address}, function(results, status) {
+    if (status === google.maps.GeocoderStatus.OK) {
+      resultsMap.setCenter(results[0].geometry.location);
+      var marker = new google.maps.Marker({
+        map: resultsMap,
+        position: results[0].geometry.location
+      });
+      marker.map.setZoom(13);
+      setAllMap(null);
+      markers = [];
+      markers.push(marker);
+      googleAPI();//Llama a la funcion que busca los links y las imagenes
+    } else {
+      alert('Geocode was not successful for the following reason: ' + status);
+    }
+  });
+
+}
+}
+  
+// Sets the map on all markers in the array.
+  function setAllMap(map) {
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setMap(map);
+      }
+  }
+    </script>
+  <div class="titulo">
+    <div class="nombre"><h1>Esche Tours</h1> </div>
+
+    
+
+  </div>
+
+<!-- Cuadro para recibir los datos del usuario-->
+  <div class="busqueda">
+
+      <h2>Busqueda</h2>
+      <br><br>
+      <label for="txtOrigen">Ciudad Origen</label>
+      <input type="text" id="txtOrigen" value=""/> <!--Textbox que pide el destino origen -->
+      <label for="sitio">Sitio</label>
+      <input id= "sitio" type="textbox" value=""><br><br>
+      <label>Fecha Inicio: <input type="text" size="12" placeholder="dd/mm/yyyy" name="startdate" id="fechaInicio" value=""> <small>(dd/mm/yyyy)</small></label><br>
+      <label>Fecha Final: <input type="text" size="12" placeholder="dd/mm/yyyy" name="startdate" id="fechaFinal" value=""> <small>(dd/mm/yyyy)</small></label><br>
+      <input type="button" value="Buscar" onclick="Validar()"><br><br><br><br>
+
+      <label for="txtDestino">Destino</label>
+      <input type="text" id="txtDestino" value=""/> <!--Textbox que pide el destino final -->
+      <input type="button" value="Obtener ruta" onclick="ObtenerRuta()" /> <!--Boton que llama a la funcion obtener ruta para hacer los calculos -->      
+ 
+  </div>
+
+
+<!--  Cuadro para mostrar la api del mapa -->
+  <div id="map"></div>
+
+<!-- Cuadro para mostrar la api de links e imagenes-->
+  <div id="links">
+    <label>Informacion links e imagenes relacionadas al sitio de interes</label>
+  </div>
+
+<!-- Cuadro para mostrar la api de links e imagenes-->
+<div id="distanciaRuta">
+<label>Informacion distancia entre los lugares seleccionados</label><br><br>
+</div>
+
+<div id="crearJson">
+<label>Barra para exportar archivo JSON</label>
+<br><br><br>
+<input type="button" value="Exportar" onclick="exportarJson()">
+</div>
+
+<!-- Informacion de la pagina web-->
+<div id="copyright"><p>&copy; ESCHE TOURS. All rights reserved. | Lenguajes de Programacion | Diseñado por Jose M Rojas y Esteban Mendoza</p></div>
+
+
+ 
+   
+    <script src="googleSearchEngine.js" type="text/javascript"> </script>
+    <script src='busqueda.js' type="text/javascript"></script> 
+    <script src='funcionalidad.js' type="text/javascript"></script>
+
+
+
+</body>
+</html>
